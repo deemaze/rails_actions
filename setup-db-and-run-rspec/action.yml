@@ -1,0 +1,54 @@
+name: 'Setup db and run rspec'
+description: 'This action install postgres, cache assets, install yarn, setup db, precompile the assets and run rspec'
+
+inputs:
+  TEST_CREDENTIALS_KEY:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    # required to compile the pg gem
+    - name: Install PostgreSQL client
+      run: |
+        sudo apt-get -yqq install libpq-dev
+      shell: bash
+
+    - name: Cache webpacker assets
+      id: webpacker-cache
+      uses: actions/cache@v3
+      with:
+        path: public/packs-test
+        key: ${{ runner.os }}-webpacker-${{ steps.extract_branch.outputs.branch }}
+        restore-keys: |
+          ${{ runner.os }}-webpacker-
+
+    - name: Copy credentials test.key
+      run: echo "${{ inputs.TEST_CREDENTIALS_KEY }}" > config/credentials/test.key
+      shell: bash
+
+    - name: Setup db
+      env:
+        PGHOST: localhost
+        PGUSER: postgres
+        RAILS_ENV: test
+      run: |
+        bin/rails db:create
+        bin/rails db:migrate
+      shell: bash
+
+    - name: Precompile assets for the test environment
+      run: bundle exec rails assets:precompile
+      shell: bash
+      env:
+        PGHOST: localhost
+        PGUSER: postgres
+        RAILS_ENV: test
+
+    - name: Run RSpec
+      run: bundle exec rspec
+      shell: bash
+      env:
+        PGHOST: localhost
+        PGUSER: postgres
+        RAILS_ENV: test
