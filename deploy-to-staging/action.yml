@@ -41,16 +41,19 @@ runs:
       run: echo "${{ inputs.rails_master_key }}" > config/master.key
       env:
         RAILS_MASTER_KEY: ${{ inputs.rails_master_key }}
+      shell: bash
 
     - name: Copy credentials staging.key
       run: echo "${{ inputs.staging_credentials_key }}" > config/credentials/staging.key
       env:
         STAGING_CREDENTIALS_KEY: ${{ inputs.staging_credentials_key }}
+      shell: bash
 
     - name: Deploy to staging
       run: bundle exec cap staging deploy
       env:
         RAILS_ENV: staging
+      shell: bash
 
     - name: Notify Slack channel
       uses: rtCamp/action-slack-notify@master
