@@ -15,13 +15,22 @@ runs:
       shell: bash
 
     - name: Cache webpacker assets
-      id: webpacker-cache
+      id: webpacker-assets
       uses: actions/cache@v3
       with:
         path: public/packs-test
-        key: ${{ runner.os }}-webpacker-${{ steps.extract_branch.outputs.branch }}
+        key: ${{ runner.os }}-webpacker-assets-${{ steps.extract_branch.outputs.branch }}
         restore-keys: |
-          ${{ runner.os }}-webpacker-
+          ${{ runner.os }}-webpacker-assets-
+
+    - name: Store webpacker cache
+      id: webpacker-cache
+      uses: actions/cache@v3
+      with:
+        path: tmp/webpacker
+        key: ${{ runner.os }}-webpacker-cache-${{ steps.extract_branch.outputs.branch }}
+        restore-keys: |
+          ${{ runner.os }}-webpacker-cache-
 
     - name: Copy credentials test.key
       run: echo "${{ inputs.TEST_CREDENTIALS_KEY }}" > config/credentials/test.key
