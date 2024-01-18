@@ -1,11 +1,16 @@
-name: 'Checkout and setup ruby'
-description: 'This action checks out the commit, sets up Node and installs deps using yarn.'
+name: 'Checkout and setup ruby (and node)'
+description: 'Checks out the commit, installs a ruby version; will also install node and run yarn install if needed.'
 
 inputs:
   ruby_version:
+    description: The ruby version to install.
     required: true
+  install_node:
+    description: Whether or not to install a node version and run yarn install.
+    required: true
+    default: 'false'
   node_version:
-    required: true
+    description: (Optional) The node version to install, if install_node is true.
 
 runs:
   using: 'composite'
@@ -19,11 +24,13 @@ runs:
         ruby-version: ${{ inputs.ruby_version }}
 
     - name: Install node ${{ inputs.node_version }}
+      if: ${{ inputs.install_node == 'true' }}
       uses: actions/setup-node@v3
       with:
         node-version: '${{ inputs.node_version }}'
         cache: 'yarn'
 
     - name: Run yarn
+      if: ${{ inputs.install_node == 'true' }}
       run: yarn
       shell: bash

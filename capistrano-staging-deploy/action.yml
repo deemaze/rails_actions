@@ -1,25 +1,30 @@
-name: 'Deploy to staging'
-description: 'This action deploy the PR to staging environment'
+name: 'Capistrano staging deploy'
+description: 'Deploys a given branch to the staging environment with capistrano.'
 
 inputs:
   ruby_version:
+    description: The ruby version to install.
     required: true
   ssh_private_key:
+    description: The SSH private key generated to access the webserver with capistrano.
     required: true
   rails_master_key:
+    description: The contents of the config/master.key file in a rails app.
     required: true
   staging_credentials_key:
+    description: The contents of the config/credentials/staging.key file in a rails app.
+    required: true
+  slack_webhook_url:
+    description: The Slack webhook URL to post to.
     required: true
   slack_channel:
-    required: false
+    description: '(Optional) The Slack channel to post to. Default value: the channel set when creating the webhook.'
   slack_username:
-    required: false
+    description: (Optional) The username to use when posting to Slack.
     default: deploybot
   slack_icon_emoji:
-    required: false
+    description: (Optional) An emoji to use as the picture when posting to Slack.
     default: ':rocket'
-  slack_webhook_url:
-    required: false
 
 runs:
   using: 'composite'
@@ -58,7 +63,7 @@ runs:
     - name: Notify Slack channel
       uses: rtCamp/action-slack-notify@master
       env:
+        SLACK_WEBHOOK: ${{ inputs.slack_webhook_url }}
         SLACK_CHANNEL: ${{ inputs.slack_channel }}
         SLACK_USERNAME: ${{ inputs.slack_username }}
         SLACK_ICON_EMOJI: ${{ inputs.slack_icon_emoji }}
-        SLACK_WEBHOOK: ${{ inputs.slack_webhook_url }}

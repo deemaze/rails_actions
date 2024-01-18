@@ -1,8 +1,13 @@
 name: 'Setup db and run rspec'
-description: 'This action install postgres, cache assets, install yarn, setup db, precompile the assets and run rspec'
+description: 'Prepares the PostgreSQL database and runs RSpec.'
 
 inputs:
+  precompile_webpacker_assets:
+    description: Whether or not to precompile rails assets (usually required when using webpacker).
+    required: true
+    default: 'false'
   TEST_CREDENTIALS_KEY:
+    description: The contents of the config/credentials/test.key file in a rails app.
     required: true
 
 runs:
@@ -15,6 +20,7 @@ runs:
       shell: bash
 
     - name: Cache webpacker assets
+      if: ${{ inputs.precompile_webpacker_assets == 'true' }}
       id: webpacker-assets
       uses: actions/cache@v3
       with:
@@ -24,6 +30,7 @@ runs:
           ${{ runner.os }}-webpacker-assets-
 
     - name: Store webpacker cache
+      if: ${{ inputs.precompile_webpacker_assets == 'true' }}
       id: webpacker-cache
       uses: actions/cache@v3
       with:
@@ -47,6 +54,7 @@ runs:
       shell: bash
 
     - name: Precompile assets for the test environment
+      if: ${{ inputs.precompile_webpacker_assets == 'true' }}
       run: bundle exec rails assets:precompile
       shell: bash
       env:
