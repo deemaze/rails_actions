@@ -29,10 +29,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/checkout@v4
-
     - name: Setup rails dependencies
-      uses: ./setup-rails-dependencies
+      uses: deemaze/rails_actions/setup-rails-dependencies@v2
       with:
         ruby_version: 3.2.2
 
