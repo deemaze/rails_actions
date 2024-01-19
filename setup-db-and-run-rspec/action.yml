@@ -2,13 +2,13 @@ name: 'Setup db and run rspec'
 description: 'Prepares the PostgreSQL database and runs RSpec.'
 
 inputs:
+  TEST_CREDENTIALS_KEY:
+    description: The contents of the config/credentials/test.key file in a rails app.
+    required: true
   precompile_webpacker_assets:
     description: Whether or not to precompile rails assets (usually required when using webpacker).
     required: true
     default: 'false'
-  TEST_CREDENTIALS_KEY:
-    description: The contents of the config/credentials/test.key file in a rails app.
-    required: true
 
 runs:
   using: 'composite'

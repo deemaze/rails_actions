@@ -8,21 +8,21 @@ inputs:
   ssh_private_key:
     description: The SSH private key generated to access the webserver with capistrano.
     required: true
-  rails_master_key:
+  RAILS_MASTER_KEY:
     description: The contents of the config/master.key file in a rails app.
     required: true
-  staging_credentials_key:
+  STAGING_CREDENTIALS_KEY:
     description: The contents of the config/credentials/staging.key file in a rails app.
     required: true
-  slack_webhook_url:
+  SLACK_WEBHOOK_URL:
     description: The Slack webhook URL to post to.
     required: true
-  slack_channel:
+  SLACK_CHANNEL:
     description: '(Optional) The Slack channel to post to. Default value: the channel set when creating the webhook.'
-  slack_username:
+  SLACK_USERNAME:
     description: (Optional) The username to use when posting to Slack.
     default: deploybot
-  slack_icon_emoji:
+  SLACK_ICON_EMOJI:
     description: (Optional) An emoji to use as the picture when posting to Slack.
     default: ':rocket'
 
@@ -40,15 +40,15 @@ runs:
         ssh-private-key: ${{ inputs.ssh_private_key }}
 
     - name: Copy credentials master.key
-      run: echo "${{ inputs.rails_master_key }}" > config/master.key
+      run: echo "${{ inputs.RAILS_MASTER_KEY }}" > config/master.key
       env:
-        RAILS_MASTER_KEY: ${{ inputs.rails_master_key }}
+        RAILS_MASTER_KEY: ${{ inputs.RAILS_MASTER_KEY }}
       shell: bash
 
     - name: Copy credentials staging.key
-      run: echo "${{ inputs.staging_credentials_key }}" > config/credentials/staging.key
+      run: echo "${{ inputs.STAGING_CREDENTIALS_KEY }}" > config/credentials/staging.key
       env:
-        STAGING_CREDENTIALS_KEY: ${{ inputs.staging_credentials_key }}
+        STAGING_CREDENTIALS_KEY: ${{ inputs.STAGING_CREDENTIALS_KEY }}
       shell: bash
 
     - name: Deploy to staging
@@ -60,7 +60,7 @@ runs:
     - name: Notify Slack channel
       uses: rtCamp/action-slack-notify@master
       env:
-        SLACK_WEBHOOK: ${{ inputs.slack_webhook_url }}
-        SLACK_CHANNEL: ${{ inputs.slack_channel }}
-        SLACK_USERNAME: ${{ inputs.slack_username }}
-        SLACK_ICON_EMOJI: ${{ inputs.slack_icon_emoji }}
+        SLACK_WEBHOOK: ${{ inputs.SLACK_WEBHOOK_URL }}
+        SLACK_CHANNEL: ${{ inputs.SLACK_CHANNEL }}
+        SLACK_USERNAME: ${{ inputs.SLACK_USERNAME }}
+        SLACK_ICON_EMOJI: ${{ inputs.SLACK_ICON_EMOJI }}
