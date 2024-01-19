@@ -13,12 +13,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    # required to compile the pg gem
-    - name: Install PostgreSQL client
-      run: |
-        sudo apt-get -yqq install libpq-dev
-      shell: bash
-
     - name: Cache webpacker assets
       if: ${{ inputs.precompile_webpacker_assets == 'true' }}
       id: webpacker-assets
