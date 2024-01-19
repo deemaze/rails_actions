@@ -29,8 +29,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout and setup ruby
-      uses: ./checkout-and-setup-ruby-and-node
+    - name: Setup rails dependencies
+      uses: ./setup-rails-dependencies
       with:
         ruby_version: 3.2.2
 
