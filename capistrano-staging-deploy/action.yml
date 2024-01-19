@@ -29,13 +29,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Ruby ${{ inputs.ruby_version }}
-      uses: ruby/setup-ruby@v1
+    - name: Checkout and setup ruby
+      uses: ./checkout-and-setup-ruby-and-node
       with:
-        bundler-cache: true
-        ruby-version: ${{ inputs.ruby_version }}
+        ruby_version: 3.2.2
 
     - name: Setup ssh-agent
       uses: webfactory/ssh-agent@v0.6.0
