@@ -10,7 +10,7 @@ inputs:
     required: true
     default: 'false'
   node_version:
-    description: (Optional) The node version to install, if install_node is true.
+    description: The node version to install. Required if install_node is true.
 
 runs:
   using: 'composite'
