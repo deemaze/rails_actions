@@ -8,6 +8,9 @@ inputs:
   ssh_private_key:
     description: The SSH private key generated to access the webserver with capistrano.
     required: true
+  staging_url:
+    description: The URL to the staging environment.
+    required: true
   RAILS_MASTER_KEY:
     description: The contents of the config/master.key file in a rails app.
     required: true
@@ -58,9 +61,46 @@ runs:
       shell: bash
 
     - name: Notify Slack channel
-      uses: rtCamp/action-slack-notify@master
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload: |
+          {
+            "attachments": [
+              {
+                "color": "good",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*New staging deploy available at <${{ inputs.staging_url }}>* :rocket:"
+                    }
+                  },
+                  {
+                    "type": "section",
+                    "fields": [
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Ref*\n${{ github.event.workflow_run.head_branch }}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Event*\npush"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Workflow run*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}>"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Commit*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.workflow_run.head_sha }}|${{ github.event.workflow_run.head_commit.id }}>"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
       env:
-        SLACK_WEBHOOK: ${{ inputs.SLACK_WEBHOOK_URL }}
-        SLACK_CHANNEL: ${{ inputs.SLACK_CHANNEL }}
-        SLACK_USERNAME: ${{ inputs.SLACK_USERNAME }}
-        SLACK_ICON_EMOJI: ${{ inputs.SLACK_ICON_EMOJI }}
+        SLACK_WEBHOOK_URL: ${{ inputs.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
