@@ -60,6 +60,11 @@ runs:
         RAILS_ENV: staging
       shell: bash
 
+    - name: Extract short commit SHA
+      id: extract_commit_sha
+      run: echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: Notify Slack channel
       uses: slackapi/slack-github-action@v1.24.0
       with:
@@ -81,11 +86,11 @@ runs:
                     "fields": [
                       {
                         "type": "mrkdwn",
-                        "text": "*Ref*\n${{ github.event.workflow_run.head_branch }}"
+                        "text": "*Branch*\n${{ github.event.workflow_run.head_branch }}"
                       },
                       {
                         "type": "mrkdwn",
-                        "text": "*Event*\npush"
+                        "text": "*Event*\n${{ github.event.workflow_run.event }}"
                       },
                       {
                         "type": "mrkdwn",
@@ -93,7 +98,7 @@ runs:
                       },
                       {
                         "type": "mrkdwn",
-                        "text": "*Commit*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.workflow_run.head_sha }}|${{ github.event.workflow_run.head_commit.id }}>"
+                        "text": "*Commit*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.workflow_run.head_sha }}|${{ steps.extract_commit_sha.outputs.short_sha }}>"
                       }
                     ]
                   }
