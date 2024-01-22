@@ -9,7 +9,7 @@ inputs:
     description: The SSH private key generated to access the webserver with capistrano.
     required: true
   staging_url:
-    description: The URL to the staging environment.
+    description: The URL to the staging environment. Must include the schema to be properly formatted as a URL on Slack.
     required: true
   RAILS_MASTER_KEY:
     description: The contents of the config/master.key file in a rails app.
@@ -62,7 +62,13 @@ runs:
 
     - name: Extract short commit SHA
       id: extract_commit_sha
-      run: echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      run: echo "short_sha=$(git rev-parse --short ${{ github.event.workflow_run.head_sha }})" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Extract commit message
+      id: extract_commit_message
+      # strip the start and end quotes added by the toJSON function so it can be interpolated in the JSON payload below
+      run: echo "commit_msg=$(printf "%q" ${{ toJSON(github.event.workflow_run.head_commit.message) }} | xargs)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Notify Slack channel
@@ -72,13 +78,13 @@ runs:
           {
             "attachments": [
               {
-                "color": "good",
+                "color": "#2eb885",
                 "blocks": [
                   {
                     "type": "section",
                     "text": {
                       "type": "mrkdwn",
-                      "text": "*New staging deploy available at <${{ inputs.staging_url }}>* :rocket:"
+                      "text": "*New staging deploy available at :point_right: <${{ inputs.staging_url }}>*"
                     }
                   },
                   {
@@ -86,7 +92,7 @@ runs:
                     "fields": [
                       {
                         "type": "mrkdwn",
-                        "text": "*Branch*\n${{ github.event.workflow_run.head_branch }}"
+                        "text": "*Branch*\n<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.event.workflow_run.head_branch }}|${{ github.event.workflow_run.head_branch }}>"
                       },
                       {
                         "type": "mrkdwn",
@@ -101,6 +107,13 @@ runs:
                         "text": "*Commit*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.workflow_run.head_sha }}|${{ steps.extract_commit_sha.outputs.short_sha }}>"
                       }
                     ]
+                  },
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*Commit message*\n${{ steps.extract_commit_message.outputs.commit_msg }}"
+                    }
                   }
                 ]
               }
