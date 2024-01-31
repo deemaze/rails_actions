@@ -1,0 +1,124 @@
+name: 'Capistrano staging deploy'
+description: 'Deploys a given branch to the staging environment with capistrano.'
+
+inputs:
+  ruby_version:
+    description: The ruby version to install.
+    required: true
+  ssh_private_key:
+    description: The SSH private key generated to access the webserver with capistrano.
+    required: true
+  staging_url:
+    description: The URL to the staging environment. Must include the schema to be properly formatted as a URL on Slack.
+    required: true
+  RAILS_MASTER_KEY:
+    description: The contents of the config/master.key file in a rails app.
+    required: true
+  STAGING_CREDENTIALS_KEY:
+    description: The contents of the config/credentials/staging.key file in a rails app.
+    required: true
+  SLACK_WEBHOOK_URL:
+    description: The Slack webhook URL to post to.
+    required: true
+  SLACK_CHANNEL:
+    description: '(Optional) The Slack channel to post to. Default value: the channel set when creating the webhook.'
+  SLACK_USERNAME:
+    description: (Optional) The username to use when posting to Slack.
+    default: deploybot
+  SLACK_ICON_EMOJI:
+    description: (Optional) An emoji to use as the picture when posting to Slack.
+    default: ':rocket'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup rails dependencies
+      uses: deemaze/rails_actions/setup-rails-dependencies@v2
+      with:
+        ruby_version: ${{ inputs.ruby_version }}
+
+    - name: Setup ssh-agent
+      uses: webfactory/ssh-agent@v0.6.0
+      with:
+        ssh-private-key: ${{ inputs.ssh_private_key }}
+
+    - name: Copy credentials master.key
+      run: echo "${{ inputs.RAILS_MASTER_KEY }}" > config/master.key
+      env:
+        RAILS_MASTER_KEY: ${{ inputs.RAILS_MASTER_KEY }}
+      shell: bash
+
+    - name: Copy credentials staging.key
+      run: echo "${{ inputs.STAGING_CREDENTIALS_KEY }}" > config/credentials/staging.key
+      env:
+        STAGING_CREDENTIALS_KEY: ${{ inputs.STAGING_CREDENTIALS_KEY }}
+      shell: bash
+
+    - name: Deploy to staging
+      run: bundle exec cap staging deploy
+      env:
+        RAILS_ENV: staging
+      shell: bash
+
+    - name: Extract short commit SHA
+      id: extract_commit_sha
+      run: echo "short_sha=$(git rev-parse --short ${{ github.event.workflow_run.head_sha }})" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Extract commit message
+      id: extract_commit_message
+      # strip the start and end quotes added by the toJSON function so it can be interpolated in the JSON payload below
+      run: echo "commit_msg=$(printf "%q" ${{ toJSON(github.event.workflow_run.head_commit.message) }} | xargs)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Notify Slack channel
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload: |
+          {
+            "attachments": [
+              {
+                "color": "#2eb885",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*New staging deploy available at :point_right: <${{ inputs.staging_url }}>*"
+                    }
+                  },
+                  {
+                    "type": "section",
+                    "fields": [
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Branch*\n<${{ github.server_url }}/${{ github.repository }}/tree/${{ github.event.workflow_run.head_branch }}|${{ github.event.workflow_run.head_branch }}>"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Event*\n${{ github.event.workflow_run.event }}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Workflow run*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}>"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Commit*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.workflow_run.head_sha }}|${{ steps.extract_commit_sha.outputs.short_sha }}>"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*Commit message*\n${{ steps.extract_commit_message.outputs.commit_msg }}"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ inputs.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

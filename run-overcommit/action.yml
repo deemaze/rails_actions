@@ -1,0 +1,43 @@
+name: 'Setup db and run overcommit'
+description: 'Prepares the PostgreSQL database and runs RSpec.'
+
+inputs:
+  db_checks_enabled:
+    description: Whether or not to run db:create and db:migrate before running overcommit to run db checks.
+    required: true
+    default: 'false'
+  DEVELOPMENT_CREDENTIALS_KEY:
+    description: The contents of the config/credentials/development.key file in a rails app.
+
+runs:
+  using: 'composite'
+  steps:
+    # Required for the db checks in overcommit
+    - name: Copy credentials development.key
+      if: ${{ inputs.db_checks_enabled == 'true' }}
+      run: echo "$DEVELOPMENT_CREDENTIALS_KEY" > config/credentials/development.key
+      shell: bash
+      env:
+        DEVELOPMENT_CREDENTIALS_KEY: ${{ inputs.DEVELOPMENT_CREDENTIALS_KEY }}
+
+    # Required for the db checks in overcommit
+    - name: Setup db
+      if: ${{ inputs.db_checks_enabled == 'true' }}
+      env:
+        PGHOST: localhost
+        PGUSER: postgres
+      run: |
+        bin/rails db:create
+        bin/rails db:migrate
+      shell: bash
+
+    - name: Run overcommit pre-commit hook (check .overcommit.yml for details)
+      run: |
+        bundle exec overcommit --sign
+        bundle exec overcommit --run
+      shell: bash
+      env:
+        GIT_AUTHOR_NAME: GitHub Actions
+        GIT_AUTHOR_EMAIL: actions.ci@deemaze.com
+        PGHOST: localhost
+        PGUSER: postgres
