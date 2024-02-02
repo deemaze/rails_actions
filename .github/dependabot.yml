@@ -2,6 +2,24 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     target-branch: "main"
-    directory: "/"
+    directory: "/capistrano-staging-deploy"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "github-actions"
+    target-branch: "main"
+    directory: "/run-overcommit"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "github-actions"
+    target-branch: "main"
+    directory: "/setup-db-and-run-rspec"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "github-actions"
+    target-branch: "main"
+    directory: "/setup-rails-dependencies"
     schedule:
       interval: "weekly"
