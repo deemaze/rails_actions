@@ -1,0 +1,55 @@
+name-template: '$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: 💥 Breaking Changes
+    label: breaking
+
+  - title: 🚀 New Features
+    label: feature
+
+  - title: 🐛 Bug Fixes
+    label: bug
+
+  - title: ✨ Improvements
+    label: enhancement
+
+  - title: 📝 Documentation Updates
+    label: documentation
+
+  - title: 🔧 Internal Changes
+    label: internal
+
+  - title: 🚦 Tests
+    label: test
+
+  - title: 📦 Dependency Updates
+    collapse-after: 5
+    label: dependencies
+
+exclude-labels:
+  - skip-changelog
+
+version-resolver:
+  major:
+    labels:
+      - breakinng
+  minor:
+    labels:
+      - feature
+      - enhancement
+      - documentation
+      - dependencies
+  patch:
+    labels:
+      - bug
+      - internal
+      - test
+  default: minor
+
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+no-changes-template: '- No changes'
+template: |
+  $CHANGES
+
+  **Full Changelog:** https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
