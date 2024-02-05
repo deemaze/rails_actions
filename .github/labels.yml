@@ -1,35 +1,35 @@
 - name: breaking
   description: 💥 Breaking Changes
-  color: "#B60205"
+  color: "B60205"
 
 - name: bug
   description: 🐛 Bug Fixes
-  color: "#EB410A"
+  color: "EB410A"
 
 - name: feature
   description: 🚀 New Features
-  color: "#FBCA04"
+  color: "FBCA04"
 
 - name: enhancement
   description: ✨ Improvements
-  color: "#59D6E6"
+  color: "59D6E6"
 
 - name: documentation
   description: 📝 Documentation Updates
-  color: "#6EC67B"
+  color: "6EC67B"
 
 - name: internal
   description: 🔧 Internal Changes
-  color: "#DB749F"
+  color: "DB749F"
 
 - name: tests
   description: 🚦 Tests
-  color: "#B0B3B8"
+  color: "B0B3B8"
 
 - name: dependencies
   description: 📦 Dependency Updates
-  color: "#0366D6"
+  color: "0366D6"
 
 - name: skip-changelog
   desc: 🚫 Excludes a PR from the release changelog
-  color: "#CABA9C"
+  color: "CABA9C"
