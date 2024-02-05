@@ -31,5 +31,5 @@
   color: "0366D6"
 
 - name: skip-changelog
-  desc: 🚫 Excludes a PR from the release changelog
+  description: 🚫 Excludes a PR from the release changelog
   color: "CABA9C"
