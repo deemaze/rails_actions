@@ -21,7 +21,7 @@ categories:
     label: internal
 
   - title: 🚦 Tests
-    label: test
+    label: tests
 
   - title: 📦 Dependency Updates
     collapse-after: 5
@@ -33,18 +33,18 @@ exclude-labels:
 version-resolver:
   major:
     labels:
-      - breakinng
+      - breaking
   minor:
     labels:
       - feature
-      - enhancement
-      - documentation
       - dependencies
+      - enhancement
   patch:
     labels:
       - bug
+      - documentation
       - internal
-      - test
+      - tests
   default: minor
 
 change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
