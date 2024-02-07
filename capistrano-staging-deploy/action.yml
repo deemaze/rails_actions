@@ -67,9 +67,8 @@ runs:
 
     - name: Extract commit message
       id: extract_commit_message
-      # strip the start and end quotes added by the toJSON function and escape any other quotes in the string so it can
-      # be interpolated in the JSON payload below
-      run: echo "commit_msg=$(printf "%q" ${{ toJSON(github.event.workflow_run.head_commit.message) }} | sed 's/"/\\"/g' | xargs)" >> $GITHUB_OUTPUT
+      # strip the start and end quotes added by the toJSON function so it can be interpolated in the JSON payload below
+      run: echo "commit_msg=$(printf "%q" ${{ toJSON(github.event.workflow_run.head_commit.message) }} | xargs)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Notify Slack channel
